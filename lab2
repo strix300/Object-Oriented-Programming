@@ -1,0 +1,145 @@
+#include <iostream>
+#include <cmath>
+#include <conio.h>
+#include <string>
+using namespace std;
+
+void zadanie1();
+void zadanie2();
+
+int main()
+{
+	setlocale(LC_ALL, "RUS");
+	int menu = 1;
+	while (menu > 0)
+	{
+		system("cls");
+		cout << "введите номер задания от 1 до 3, 4 чтобы выйти" << endl;
+		cin >> menu;
+		switch (menu)
+		{
+		case 1:
+			system("cls");
+			zadanie1();
+			break;
+		case 2:
+			system("cls");
+			zadanie2();
+			break;
+		case 3:
+			break;
+		case 4:
+			menu = 0;
+			break;
+		}
+	}
+}
+
+void zadanie1()
+{
+	int size, k = 0;
+	float average=0;
+	cout << "Введите размер массива" << endl;
+	cin >> size;
+	int* arr = new int[size];
+	int max = arr[0];
+	cout << "Заполните массив занчениями" << endl;
+	for (int i = 0; i < size; i++)
+	{
+		cin >> arr[i];
+	}
+	for (int i = 0; i < size; i++)
+	{
+		if (arr[i] > max)
+		{
+			max = arr[i];
+		}
+	}
+	for (int i = 0; i < size; i++)
+	{
+		if (arr[i] < 0)
+		{
+			average += arr[i];
+			k++;
+		}
+	}
+	average = average / k;
+	cout << "Максимальное элемент массива = " << max << endl;
+	if (k != 0)
+	{
+		average = average / k;
+		cout << "Среднеарифметическое отрицательных элементов массива =" << average << endl;
+	}
+	for (int i = 0; i < size; i++)
+	{
+		cout << arr[size - (i + 1)];
+	}
+	delete[] arr;
+	system("pause");
+}
+
+void zadanie2()
+{
+	int length, width, k = 0;
+	cout << "Введите длинну и ширину матрицы" << endl;
+	cin >> length;
+	cin >> width;
+	int **arr = new int*[width];
+	int *sum = new int[width];
+	float *average = new float[width];
+	float *answer = new float[width];
+
+	cout << "Введите длинну и ширину матрицы" << endl;
+	for (int i = 0; i < width; i++)
+	{
+		arr[i] = new int[length];
+	}
+
+	for (int i = 0; i < width; i++)
+	{
+		for (int n = 0; n < length; n++)
+		{
+			cin >> arr[i][n];
+		}
+	}
+	system("cls");
+	for (int i = 0; i < width; i++)
+	{
+		for (int n = 0; n < length; n++)
+		{
+			cout << arr[i][n] << " ";
+		}
+		cout << endl;
+	}
+	cout << endl;
+	for (int i = 0; i < width; i++)
+	{
+		sum[i] = 0;
+		for (int n = 0; n < length; n++)
+		{
+			sum[i] += arr[i][n];
+		}
+	}
+
+	for (int n = 0; n < width; n++)
+	{
+		average[n] = sum[n];
+		average[n] = average[n] / length;
+		answer[n] = sum[n] - average[n];
+		cout << average[n] << endl;
+		cout << sum[n] << endl;
+		cout << answer[n] << endl;
+		cout << endl;
+	}
+
+	for (int i = 0; i < width; i++)
+	{
+		delete[] arr[i];
+	}
+
+	delete[] arr;
+	delete[] sum;
+	delete[] average;
+	delete[] answer;
+	system("pause");
+}
