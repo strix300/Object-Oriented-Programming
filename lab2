@@ -6,6 +6,7 @@ using namespace std;
 
 void zadanie1();
 void zadanie2();
+void zadanie3();
 
 int main()
 {
@@ -27,6 +28,8 @@ int main()
 			zadanie2();
 			break;
 		case 3:
+			system("cls");
+			zadanie3();
 			break;
 		case 4:
 			menu = 0;
@@ -141,5 +144,35 @@ void zadanie2()
 	delete[] sum;
 	delete[] average;
 	delete[] answer;
+	system("pause");
+}
+
+void zadanie3()
+{
+	int size;
+	cout << "Введите размер массива" << endl;
+	cin >> size;
+	int* arr = new int[size];
+	for (int i = 0; i < size; i++)
+	{
+		cin >> arr[i];
+	}
+	for (int i = 0; i < size - 1; i++)
+	{
+		int min = i;
+		for (int j = i + 1; j < size; j++)
+		{
+			if (arr[j] < arr[i])
+			{
+				min = j;
+			}
+		}
+		swap(arr[i], arr[min]);
+	}
+	for (int i = 0; i < size; i++)
+	{
+		cout << arr[i] << " ";
+	}
+	delete[] arr;
 	system("pause");
 }
