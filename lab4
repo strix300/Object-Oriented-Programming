@@ -106,7 +106,9 @@ void zadanie3()
 	string platToFind;
 
 	// ввод данных в массив SPISOK
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 4; i++) 
+	{
+		cout << i + 1 << endl;
 		cout << "Введите расчетный счет плательщика: ";
 		cin >> SPISOK[i].PLAT;
 		cout << "Введите расчетный счет получателя: ";
@@ -121,17 +123,21 @@ void zadanie3()
 	cout << "Введите расчетный счет плательщика для поиска: ";
 	cin >> platToFind;
 	int count = 0;
-	while (count < 8) {
-		if (SPISOK[count].PLAT == platToFind) {
+	while (count < 8) 
+	{
+		if (SPISOK[count].PLAT == platToFind) 
+		{
 			totalSum += SPISOK[count].SUMMA;
 		}
 		count++;
 	}
 
-	if (totalSum > 0) {
+	if (totalSum > 0) 
+	{
 		cout << "Сумма, снятая с расчетного счета " << platToFind << ": " << totalSum << " руб." << endl;
 	}
-	else {
+	else 
+	{
 		cout << "Расчетный счет " << platToFind << " не найден." << endl;
 	}
 	system("pause");
