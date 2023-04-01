@@ -6,8 +6,17 @@
 #include <fstream>
 using namespace std;
 
+struct ORDER {
+	string PLAT;    // расчетный счет плательщика
+	string POL;     // расчетный счет получателя
+	string DESCRP;  // описание назначения платежа
+	float SUMMA;    // перечисляемая сумма в руб.
+};
+
 void zadanie1();
 void zadanie2();
+void zadanie3();
+
 
 int main()
 {
@@ -27,6 +36,10 @@ int main()
 		case 2:
 			system("cls");
 			zadanie2();
+			break;
+		case 3:
+			system("cls");
+			zadanie3();
 			break;
 		case 4:
 			menu = 0;
@@ -84,4 +97,42 @@ void zadanie2()
 	system("pause");
 	infile.close(); 
 	outfile.close();
+}
+
+void zadanie3()
+{
+	ORDER SPISOK[8];
+	double totalSum = 0;
+	string platToFind;
+
+	// ввод данных в массив SPISOK
+	for (int i = 0; i < 2; i++) {
+		cout << "Введите расчетный счет плательщика: ";
+		cin >> SPISOK[i].PLAT;
+		cout << "Введите расчетный счет получателя: ";
+		cin >> SPISOK[i].POL;
+		cout << "Введите описание назначения платежа: ";
+		cin >> SPISOK[i].DESCRP;
+		cout << "Введите перечисляемую сумму в руб.: ";
+		cin >> SPISOK[i].SUMMA;
+	}
+
+	// вывод информации о сумме, снятой с расчетного счета плательщика
+	cout << "Введите расчетный счет плательщика для поиска: ";
+	cin >> platToFind;
+	int count = 0;
+	while (count < 8) {
+		if (SPISOK[count].PLAT == platToFind) {
+			totalSum += SPISOK[count].SUMMA;
+		}
+		count++;
+	}
+
+	if (totalSum > 0) {
+		cout << "Сумма, снятая с расчетного счета " << platToFind << ": " << totalSum << " руб." << endl;
+	}
+	else {
+		cout << "Расчетный счет " << platToFind << " не найден." << endl;
+	}
+	system("pause");
 }
