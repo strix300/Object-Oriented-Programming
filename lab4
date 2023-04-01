@@ -1,0 +1,87 @@
+#include <iostream>
+#include <cmath>
+#include <conio.h>
+#include <string>
+#include <sstream>
+#include <fstream>
+using namespace std;
+
+void zadanie1();
+void zadanie2();
+
+int main()
+{
+	setlocale(LC_ALL, "RUS");
+	int menu = 1;
+	while (menu > 0)
+	{
+		system("cls");
+		cout << "Type the task number 1-3 and 4 to exit" << endl;
+		cin >> menu;
+		switch (menu)
+		{
+		case 1:
+			system("cls");
+			zadanie1();
+			break;
+		case 2:
+			system("cls");
+			zadanie2();
+			break;
+		case 4:
+			menu = 0;
+			break;
+		}
+	}
+}
+
+void zadanie1()
+{
+	string line;
+	while (true) {
+		cout << "Enter a line of text (type 'quit' to exit): " << endl;
+		getline(cin, line);
+		if (line == "quit") {
+			break;
+		}
+		istringstream iss(line);
+		string word;
+		int max_length = 0;
+		string longest_word;
+		while (iss >> word) {
+			if (word.size() > max_length) {
+				max_length = word.size();
+				longest_word = word;
+			}
+		}
+		cout << "The longest word is: " << longest_word << endl;
+		system("pause");
+		system("cls");
+	}
+}
+
+void zadanie2()
+{
+	int n=0;
+	ifstream infile("input.txt"); // открыть файл на чтение
+	ofstream outfile("output.txt"); // создать новый файл на запись
+	if (!infile.is_open() || !outfile.is_open()) // проверка на ошибки открытия файлов
+	{ 
+		cerr << "Error opening files!\n";
+		n = 1;
+	}
+	string line;
+	int line_num = 1;
+	while (getline(infile, line)) 
+	{ 
+		outfile << line_num << " " << line << "\n";
+		++line_num;
+	}
+	if (n == 0)
+	{
+		cout << "File has been successfully processed!\n";
+	}
+	system("pause");
+	infile.close(); 
+	outfile.close();
+}
