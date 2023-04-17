@@ -1,0 +1,109 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Базовый класс "Человек"
+class Human
+{
+protected:
+    string name;
+    int age;
+public:
+    Human(string name,int age)
+    {
+        this -> name = name;
+        this -> age = age;
+    }
+    ~Human(){}
+    void Print()
+    {
+        cout << "Имя: " << name << endl << "Возраст: " << age << endl;
+    }
+};
+
+// Класс "Студент", наследует от класса "Человек"
+class Student :public Human
+{
+protected:
+    int course;
+    string group;
+public:
+    Student(string name, int age, string group, int course) : Human(name, age)
+    {
+        this->course = course;
+        this->group = group;
+    }
+    ~Student(){}
+    void Print()
+    {
+        Human::Print();
+        cout << "Группа: " << group << endl << "Курс: " << course << endl;
+    }
+};
+
+// Класс "Аспирант", наследует от класса "Студент"
+class GraduateStudent : public Student
+{ 
+protected:
+    string typeoftraining;
+public:
+    GraduateStudent(string name, int age, string group, int course, string typeoftraining) : Student(name, age, group, course)
+    {
+        this->typeoftraining = typeoftraining;
+    }
+    ~GraduateStudent(){}
+    void Print()
+    {
+        Student::Print();
+        cout << "Вид обучения: " << typeoftraining << endl;
+    }
+};
+
+// Класс "Слушатель", наследует от класса "Человек"
+class Listener : public Human
+{
+protected:
+    string subject;
+public:
+    Listener(string name, int age, string subject) : Human(name, age)
+    {
+        this->subject = subject;
+    }
+    ~Listener(){}
+    void Print()
+    {
+        Human::Print();
+        cout << "Предмет: " << subject << endl;
+    }
+};
+
+int main() 
+{
+    setlocale(LC_ALL, "RUS");
+    Human* newperson = new Human("Anna", 25);
+    Student* newstudent = new Student("Maksim", 19, "Machine Learning", 3);
+    GraduateStudent* newgraduatestudent = new GraduateStudent("Rodion", 23, "Machine Learning", 1, "Distance Learning");
+    Listener* newlistener = new Listener("Daniil", 26, "Discrete Math");
+
+    //вызов Print для каждого объекта
+    cout << "--Human--" << endl;
+    newperson->Print();
+    cout << endl;
+    cout << "--Student--" << endl;
+    newstudent->Print();
+    cout << endl;
+    cout << "--GraduateStudent--" << endl;
+    newgraduatestudent->Print();
+    cout << endl;
+    cout << "--Listener--" << endl;
+    newlistener->Print();
+
+    // Освобождение памяти
+    delete newperson;
+    delete newstudent;
+    delete newgraduatestudent;
+    delete newlistener;
+
+    return 0;
+}
