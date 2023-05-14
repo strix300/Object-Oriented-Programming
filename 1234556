@@ -27,7 +27,6 @@ public:
                 cout << line << endl;
             }
         }
-        system("pause");
         fileproduct.seekg(0, ios::beg);
         fileproduct.close();
     }
@@ -37,7 +36,7 @@ class Goodsadd : Goodsread
 {
 protected:
     int id, category_id, price, quantity;
-    string product_name;
+    string product_name, date;
 public:
     void productadd()
     {
@@ -50,17 +49,22 @@ public:
         else
         {
             cout << "Файл открыт" << endl;
+            cout << "Введите id товара" << endl;
             cin >> id;
+            cout << "Введите название товара" << endl;
             cin >> ws;
             getline(cin, product_name);
+            cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
             cin >> category_id;
             cin >> price;
             cin >> quantity;
+            cin >> date;
             fileproduct << setw(5) << id << " | "
                 << setw(35) << product_name << " | "
-                << setw(3) << category_id << " | "
+                << setw(9) << category_id << " | "
                 << setw(10) << price << "р." << " | "
-                << setw(5) << quantity << "шт." << " | " << endl;
+                << setw(9) << quantity << "шт." << " | "
+                << setw(5) << date << " | " << endl;
         }
         fileproduct.close();
     }
@@ -131,12 +135,17 @@ int main()
         {
             Goodsread* newgoodsread = new Goodsread();
             newgoodsread->print();
+            system("pause");
+            system("cls");
             break;
         }
         case 2:
         {
             newgoodsadd->productadd();
-        }
+            system("pause");
+            system("cls");
+            break;
+        } 
         default:
         {
             menu = 0;
