@@ -1,0 +1,211 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <iomanip>
+
+using namespace std;
+
+class Login
+{
+private:
+    string logbase = "Login.txt";
+protected:
+    string loginandpassword;
+    int user = 0, status;
+public:
+    Login(string loginandpassword)
+    {
+        this->loginandpassword = loginandpassword;
+    }
+    ~Login() {}
+    void check()
+    {
+        ifstream file;
+        file.open(logbase);
+        if (!file.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+        }
+        else
+        {
+            string password;
+            cout << "Файл открыт" << endl;
+            bool success = false;
+            do
+            {
+                cout << "Введите пароль: " << endl;
+                getline(cin, password);
+                while (getline(file, loginandpassword))
+                {
+                    size_t pos = loginandpassword.find(':');
+                    if (pos != string::npos && password == loginandpassword.substr(pos + 1))
+                    {
+                        user = 1;
+                        if (loginandpassword.substr(pos + 1) == "admin")
+                        {
+                            status = 1;
+                        }
+                        else if (loginandpassword.substr(pos + 1) == "user")
+                        {
+                            status = 2;
+                        }
+                        else
+                        {
+                            status = 0; // если статус не равен ни "admin", ни "user", устанавливаем статус 0 (нет доступа)
+                        }
+                        success = true;
+                        break;
+                    }
+                }
+                if (success)
+                {
+                    cout << "Добро пожаловать" << endl;
+                    cout << loginandpassword.substr(loginandpassword.find(':') + 1) << endl;
+                }
+                else
+                {
+                    cout << "Неправильный логин или пароль" << endl;
+                    cout << "Хотите попробовать еще раз? (Y/N): ";
+                    char choice;
+                    cin >> choice;
+                    if (choice == 'N' || choice == 'n')
+                    {
+                        exit(0);
+                    }
+                    else
+                    {
+                        cin.ignore();
+                        file.clear();
+                        file.seekg(0, ios::beg);
+                        system("cls");
+                    }
+                }
+            } while (!success);
+        }
+        system("pause");
+        file.close();
+    }
+};
+
+class Goodsread : public Login
+{
+protected:
+    string product = "Goods.txt";
+public:
+    Goodsread(string loginandpassword) : Login(loginandpassword)
+    {
+        Login::check();
+        if (status == 0)
+        {
+            cout << "Доступ запрещен" << endl;
+            exit(0);
+        }
+    }
+
+    void print()
+    {
+        if (status == 0)
+        {
+            cout << "Доступ запрещен" << endl;
+            return;
+        }
+        ifstream file;
+        file.open(product);
+        if (!file.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            return;
+        }
+
+        cout << "Файл открыт" << endl;
+        string line;
+        while (getline(file, line))
+        {
+            cout << line << endl;
+        }
+
+        system("pause");
+        file.close();
+    }
+};
+
+class Goodsadd : public Goodsread
+{
+protected:
+    int id, category_id, price, quantity;
+    string product_name;
+public:
+    Goodsadd(string loginandpassword, int id, string product_name, int category_id, int price, int quantity) : Goodsread(loginandpassword)
+    {
+        Login::check();
+        if (status == 0)
+        {
+            cout << "Доступ запрещен" << endl;
+            exit(0);
+        }
+        this->id = id;
+        this->category_id = category_id;
+        this->quantity = quantity;
+        this->product_name = product_name;
+        this->price = price;
+        addproduct(); // добавляем новый товар
+    }
+    void addproduct()
+    {
+        ofstream file;
+        file.open(product, ios::app); // открываем файл в режиме дозаписи
+
+        // Задаем ширину каждого поля вывода
+        const int id_width = 3;
+        const int name_width = 35;
+        const int category_width = 9;
+        const int price_width = 12;
+        const int quantity_width = 4;
+
+        // Записываем информацию о новом товаре в файл
+        file << setw(id_width) << id << " | " << setw(name_width) << product_name << " | " << setw(category_width) << category_id << " | " << setw(price_width) << price << " | " << setw(quantity_width) << quantity << endl;
+        file.close();
+        cout << "Товар успешно добавлен" << endl;
+    }
+};
+
+int main()
+{
+    int menu = 1;
+    setlocale(LC_ALL, "RUS");
+    string loginandpassword;
+    cout << "Введите Логин:Пароль" << endl;
+    cin >> loginandpassword;
+    system("cls");
+    Login* newlogin = new Login(loginandpassword);
+    Goodsread* newgoodsread = new Goodsread(loginandpassword);
+    while (menu > 0)
+    {
+        system("cls");
+        cin >> menu;
+        system("cls");
+        switch (menu)
+        {
+            case 1:
+            {
+                newgoodsread->print(); 
+                break;
+            }
+            case 2:
+            {
+                int id, category_id, price, quantity;
+                string product_name;
+                cin >> id;
+                cin >> category_id;
+                cin >> quantity;
+                cin >> product_name;
+                cin >> price;
+                Goodsadd* newgoodsadd = new Goodsadd(loginandpassword, id, product_name, category_id, price, quantity);
+                break;
+            }
+        }
+    }
+    delete newlogin;
+    delete newgoodsread;
+    return 0;
+}
