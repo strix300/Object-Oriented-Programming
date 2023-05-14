@@ -1,0 +1,148 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <iomanip>
+#include <Windows.h>
+
+using namespace std;
+
+class Goodsread
+{
+protected:
+    string product = "Goods.txt", line;
+public:
+    void print()
+    {
+        ifstream fileproduct(product);
+        if (!fileproduct.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            exit(0);
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            while (getline(fileproduct, line))
+            {
+                cout << line << endl;
+            }
+        }
+        system("pause");
+        fileproduct.seekg(0, ios::beg);
+        fileproduct.close();
+    }
+};
+
+class Goodsadd : Goodsread
+{
+protected:
+    int id, category_id, price, quantity;
+    string product_name;
+public:
+    void productadd()
+    {
+        ofstream fileproduct(product, ios::app);
+        if (!fileproduct.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            exit(0);
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            cin >> id;
+            cin >> ws;
+            getline(cin, product_name);
+            cin >> category_id;
+            cin >> price;
+            cin >> quantity;
+            fileproduct << setw(5) << id << " | "
+                << setw(35) << product_name << " | "
+                << setw(3) << category_id << " | "
+                << setw(10) << price << "р." << " | "
+                << setw(5) << quantity << "шт." << " | " << endl;
+        }
+        fileproduct.close();
+    }
+};
+
+int main()
+{
+    int menu = 1;
+    setlocale(LC_ALL, "RUS");
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    string loginandpassword, checkline, line;
+    string logbase = "Login.txt";
+    int log = 0,status = 0;
+    Goodsadd* newgoodsadd = new Goodsadd();
+    do 
+    {
+        cout << "Введите Логин:Пароль" << endl;
+        cin >> loginandpassword;
+
+        ifstream file(logbase);
+        if (!file.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            return 0;
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            getline(file, checkline);
+            if (loginandpassword == checkline)
+            {
+                cout << "Пароль Верный" << endl;
+                log = 1;
+                getline(file, line);
+                if (line == "admin")
+                {
+                    status = 1;
+                }
+                else
+                {
+                    status = 2;
+                }
+                system("pause");
+            }
+            else
+            {
+                cout << "Неверный пароль. Хотите попробовать еще раз? (Y/N)" << endl;
+                char choice;
+                cin >> choice;
+                if (choice == 'N' || choice == 'n')
+                {
+                    return 0;
+                }
+                system("cls");
+            }
+        }
+        file.close();
+    } while (log == 0);
+    while (menu > 0)
+    {
+        system("cls");
+        cin >> menu;
+        system("cls");
+        switch (menu)
+        {
+        case 1:
+        {
+            Goodsread* newgoodsread = new Goodsread();
+            newgoodsread->print();
+            break;
+        }
+        case 2:
+        {
+            newgoodsadd->productadd();
+        }
+        default:
+        {
+            menu = 0;
+            break;
+        }
+        }
+    }
+    system("cls");
+}
