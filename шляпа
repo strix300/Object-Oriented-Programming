@@ -32,6 +32,7 @@ public:
         fileproduct.seekg(0, ios::beg);
         fileproduct.close();
     }
+    ~Goodsread(){}
 };
 
 class AdminLogCheck
@@ -58,6 +59,7 @@ public:
         filelogs.seekg(0, ios::beg);
         filelogs.close();
     }
+    ~AdminLogCheck(){}
 };
 
 class AdminLogCheckSearch : AdminLogCheck
@@ -86,6 +88,7 @@ public:
         filelogs.seekg(0, ios::beg);
         filelogs.close();
     }
+    ~AdminLogCheckSearch(){}
 };
 
 class Goodsadd : Goodsread
@@ -94,6 +97,16 @@ protected:
     int id, category_id, price, quantity;
     string product_name, date;
 public:
+    Goodsadd(int id, int category_id, int price, int quantity, string product_name, string date)
+    {
+        this->id = id;
+        this->category_id = category_id;
+        this->price = price;
+        this->quantity = quantity;
+        this->product_name = product_name;
+        this->date = date;
+    }
+
     void productadd()
     {
         ofstream fileproduct(product, ios::app);
@@ -104,17 +117,6 @@ public:
         }
         else
         {
-            cout << "Файл открыт" << endl;
-            cout << "Введите id товара" << endl;
-            cin >> id;
-            cout << "Введите название товара" << endl;
-            cin >> ws;
-            getline(cin, product_name);
-            cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
-            cin >> category_id;
-            cin >> price;
-            cin >> quantity;
-            cin >> date;
             fileproduct << setw(5) << id << " | "
                 << setw(35) << product_name << " | "
                 << setw(9) << category_id << " | "
@@ -124,6 +126,7 @@ public:
         }
         fileproduct.close();
     }
+    ~Goodsadd(){}
 };
 
 class Goodssearch : public Goodsread
@@ -152,6 +155,7 @@ public:
         fileproduct.seekg(0, ios::beg);
         fileproduct.close();
     }
+    ~Goodssearch(){}
 };
 
 int main()
@@ -237,14 +241,31 @@ int main()
                 newgoodsread->print();
                 system("pause");
                 system("cls");
+                delete newgoodsread;
                 break;
             }
             case 2:
             {
-                Goodsadd* newgoodsadd = new Goodsadd();
+                int id, category_id, price, quantity;
+                string product_name, date;
+                cout << "Введите id товара" << endl;
+                cin >> id;
+                cout << "Введите название товара" << endl;
+                cin >> ws;
+                getline(cin, product_name);
+                cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
+                cin >> category_id;
+                cout << "Введите цену" << endl;
+                cin >> price;
+                cout << "Введите к-во товара" << endl;
+                cin >> quantity;
+                cout << "Введите дату заказа (в формате дд.мм.гггг)" << endl;
+                cin >> date;
+                Goodsadd* newgoodsadd = new Goodsadd(id,category_id,price,quantity,product_name,date);
                 newgoodsadd->productadd();
                 system("pause");
                 system("cls");
+                delete newgoodsadd;
                 break;
             }
             case 3:
@@ -256,6 +277,7 @@ int main()
                 newgoodssearch->search(date);
                 system("pause");
                 system("cls");
+                delete newgoodssearch;
                 break;
             }
             case 4:
@@ -295,6 +317,7 @@ int main()
                     newadminlogchecksearch->search(name);
                     system("pause");
                     system("cls");
+                    delete newadminlogchecksearch;
                 }
                 else
                 {
@@ -302,6 +325,7 @@ int main()
                     newadminlogcheck->print();
                     system("pause");
                     system("cls");
+                    delete newadminlogcheck;
                 }
                 break;
             }
@@ -326,14 +350,31 @@ int main()
                 newgoodsread->print();
                 system("pause");
                 system("cls");
+                delete newgoodsread;
                 break;
             }
             case 2:
             {
-                Goodsadd* newgoodsadd = new Goodsadd();
+                int id, category_id, price, quantity;
+                string product_name, date;
+                cout << "Введите id товара" << endl;
+                cin >> id;
+                cout << "Введите название товара" << endl;
+                cin >> ws;
+                getline(cin, product_name);
+                cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
+                cin >> category_id;
+                cout << "Введите цену" << endl;
+                cin >> price;
+                cout << "Введите к-во товара" << endl;
+                cin >> quantity;
+                cout << "Введите дату заказа (в формате дд.мм.гггг)" << endl;
+                cin >> date;
+                Goodsadd* newgoodsadd = new Goodsadd(id, category_id, price, quantity, product_name, date);
                 newgoodsadd->productadd();
                 system("pause");
                 system("cls");
+                delete newgoodsadd;
                 break;
             }
             case 3:
@@ -345,6 +386,7 @@ int main()
                 newgoodssearch->search(date);
                 system("pause");
                 system("cls");
+                delete newgoodssearch;
                 break;
             }
             default:
