@@ -2,170 +2,155 @@
 #include <string>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
+#include <ctime>
+#include <Windows.h>
 
 using namespace std;
 
-class Login
+class Goodsread
 {
-private:
-    string logbase = "Login.txt";
 protected:
-    string loginandpassword;
-    int user = 0, status;
+    string product = "Goods.txt", line;
 public:
-    Login(string loginandpassword)
+    void print()
     {
-        this->loginandpassword = loginandpassword;
-    }
-    ~Login() {}
-    void check()
-    {
-        ifstream file;
-        file.open(logbase);
-        if (!file.is_open())
+        ifstream fileproduct(product);
+        if (!fileproduct.is_open())
         {
             cout << "Ошибка открытия файла" << endl;
+            exit(0);
         }
         else
         {
-            string password;
             cout << "Файл открыт" << endl;
-            bool success = false;
-            do
+            while (getline(fileproduct, line))
             {
-                cout << "Введите пароль: " << endl;
-                getline(cin, password);
-                while (getline(file, loginandpassword))
-                {
-                    size_t pos = loginandpassword.find(':');
-                    if (pos != string::npos && password == loginandpassword.substr(pos + 1))
-                    {
-                        user = 1;
-                        if (loginandpassword.substr(pos + 1) == "admin")
-                        {
-                            status = 1;
-                        }
-                        else if (loginandpassword.substr(pos + 1) == "user")
-                        {
-                            status = 2;
-                        }
-                        else
-                        {
-                            status = 0; // если статус не равен ни "admin", ни "user", устанавливаем статус 0 (нет доступа)
-                        }
-                        success = true;
-                        break;
-                    }
-                }
-                if (success)
-                {
-                    cout << "Добро пожаловать" << endl;
-                    cout << loginandpassword.substr(loginandpassword.find(':') + 1) << endl;
-                }
-                else
-                {
-                    cout << "Неправильный логин или пароль" << endl;
-                    cout << "Хотите попробовать еще раз? (Y/N): ";
-                    char choice;
-                    cin >> choice;
-                    if (choice == 'N' || choice == 'n')
-                    {
-                        exit(0);
-                    }
-                    else
-                    {
-                        cin.ignore();
-                        file.clear();
-                        file.seekg(0, ios::beg);
-                        system("cls");
-                    }
-                }
-            } while (!success);
+                cout << line << endl;
+            }
         }
-        system("pause");
-        file.close();
+        fileproduct.seekg(0, ios::beg);
+        fileproduct.close();
     }
 };
 
-class Goodsread : public Login
+class AdminLogCheck
 {
 protected:
-    string product = "Goods.txt";
+    string logs = "LoginData.txt", line;
 public:
-    Goodsread(string loginandpassword) : Login(loginandpassword)
-    {
-        Login::check();
-        if (status == 0)
-        {
-            cout << "Доступ запрещен" << endl;
-            exit(0);
-        }
-    }
-
     void print()
     {
-        if (status == 0)
-        {
-            cout << "Доступ запрещен" << endl;
-            return;
-        }
-        ifstream file;
-        file.open(product);
-        if (!file.is_open())
+        ifstream filelogs(logs);
+        if (!filelogs.is_open())
         {
             cout << "Ошибка открытия файла" << endl;
-            return;
+            exit(0);
         }
-
-        cout << "Файл открыт" << endl;
-        string line;
-        while (getline(file, line))
+        else
         {
-            cout << line << endl;
+            cout << "Файл открыт" << endl;
+            while (getline(filelogs, line))
+            {
+                cout << line << endl;
+            }
         }
-
-        system("pause");
-        file.close();
+        filelogs.seekg(0, ios::beg);
+        filelogs.close();
     }
 };
 
-class Goodsadd : public Goodsread
+class AdminLogCheckSearch : AdminLogCheck
+{
+public:
+    void search(string name)
+    {
+        ifstream filelogs(logs);
+        if (!filelogs.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            exit(0);
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            while (getline(filelogs, line))
+            {
+                size_t found = line.find(name);
+                if (found != string::npos)
+                {
+                    cout << line << endl;
+                }
+            }
+        }
+        filelogs.seekg(0, ios::beg);
+        filelogs.close();
+    }
+};
+
+class Goodsadd : Goodsread
 {
 protected:
     int id, category_id, price, quantity;
-    string product_name;
+    string product_name, date;
 public:
-    Goodsadd(string loginandpassword, int id, string product_name, int category_id, int price, int quantity) : Goodsread(loginandpassword)
+    void productadd()
     {
-        Login::check();
-        if (status == 0)
+        ofstream fileproduct(product, ios::app);
+        if (!fileproduct.is_open())
         {
-            cout << "Доступ запрещен" << endl;
+            cout << "Ошибка открытия файла" << endl;
             exit(0);
         }
-        this->id = id;
-        this->category_id = category_id;
-        this->quantity = quantity;
-        this->product_name = product_name;
-        this->price = price;
-        addproduct(); // добавляем новый товар
+        else
+        {
+            cout << "Файл открыт" << endl;
+            cout << "Введите id товара" << endl;
+            cin >> id;
+            cout << "Введите название товара" << endl;
+            cin >> ws;
+            getline(cin, product_name);
+            cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
+            cin >> category_id;
+            cin >> price;
+            cin >> quantity;
+            cin >> date;
+            fileproduct << setw(5) << id << " | "
+                << setw(35) << product_name << " | "
+                << setw(9) << category_id << " | "
+                << setw(10) << price << "р." << " | "
+                << setw(9) << quantity << "шт." << " | "
+                << setw(5) << date << " | " << endl;
+        }
+        fileproduct.close();
     }
-    void addproduct()
+};
+
+class Goodssearch : public Goodsread
+{
+public:
+    void search(string date)
     {
-        ofstream file;
-        file.open(product, ios::app); // открываем файл в режиме дозаписи
-
-        // Задаем ширину каждого поля вывода
-        const int id_width = 3;
-        const int name_width = 35;
-        const int category_width = 9;
-        const int price_width = 12;
-        const int quantity_width = 4;
-
-        // Записываем информацию о новом товаре в файл
-        file << setw(id_width) << id << " | " << setw(name_width) << product_name << " | " << setw(category_width) << category_id << " | " << setw(price_width) << price << " | " << setw(quantity_width) << quantity << endl;
-        file.close();
-        cout << "Товар успешно добавлен" << endl;
+        ifstream fileproduct(product);
+        if (!fileproduct.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            exit(0);
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            while (getline(fileproduct, line))
+            {
+                size_t found = line.find(date);
+                if (found != string::npos)
+                {
+                    cout << line << endl;
+                }
+            }
+        }
+        fileproduct.seekg(0, ios::beg);
+        fileproduct.close();
     }
 };
 
@@ -173,39 +158,202 @@ int main()
 {
     int menu = 1;
     setlocale(LC_ALL, "RUS");
-    string loginandpassword;
-    cout << "Введите Логин:Пароль" << endl;
-    cin >> loginandpassword;
-    system("cls");
-    Login* newlogin = new Login(loginandpassword);
-    Goodsread* newgoodsread = new Goodsread(loginandpassword);
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    string loginandpassword, checkline, line;
+    string logbase = "Login.txt";
+    string logindata = "LoginData.txt";
+    int log = 0,status = 0;
+    do
+    {
+        cout << "Введите Логин:Пароль" << endl;
+        cin >> loginandpassword;
+
+        ifstream file(logbase);
+        if (!file.is_open())
+        {
+            cout << "Ошибка открытия файла" << endl;
+            return 0;
+        }
+        else
+        {
+            cout << "Файл открыт" << endl;
+            bool password_matched = false;
+            while (getline(file, checkline))
+            {
+                if (loginandpassword == checkline)
+                {
+                    cout << "Пароль Верный" << endl;
+                    log = 1;
+                    getline(file, line);
+                    if (line == "admin")
+                    {
+                        status = 1;
+                    }
+                    else
+                    {
+                        status = 2;
+                    }
+                    password_matched = true;
+                    // записываем дату и время входа пользователя
+                    SYSTEMTIME st;
+                    GetLocalTime(&st); 
+                    ofstream logfile(logindata, ios::app);
+                    logfile << st.wYear << "-" << st.wMonth << "-" << st.wDay << " " << st.wHour << ":" << st.wMinute << ":" << st.wSecond << " " << loginandpassword << endl;
+                    logfile.close();
+                    system("pause");
+                    break;
+                }
+            }
+            if (!password_matched)
+            {
+                cout << "Неверный пароль. Хотите попробовать еще раз? (Y/N)" << endl;
+                char choice;
+                cin >> choice;
+                if (choice == 'N' || choice == 'n')
+                {
+                    return 0;
+                }
+                system("cls");
+            }
+        }
+        file.close();
+    } while (log == 0);
+    
     while (menu > 0)
     {
         system("cls");
-        cin >> menu;
-        system("cls");
-        switch (menu)
-        {
+        if (status == 1)
+        { 
+            cout << "Введите 1 для вывода базы данных в консоль" << endl << "Введите 2 для добавление нового товара в базу данных" << endl << "Введите 3 для поиска товара по дате заказа" << endl
+                << "Введите 4 для добавления нового пользователя" << endl << "Введите 5 для просмотра журнала входов" << endl;
+            cin >> menu;
+            system("cls");
+            switch (menu)
+            {
             case 1:
             {
-                newgoodsread->print(); 
+                Goodsread* newgoodsread = new Goodsread();
+                newgoodsread->print();
+                system("pause");
+                system("cls");
                 break;
             }
             case 2:
             {
-                int id, category_id, price, quantity;
-                string product_name;
-                cin >> id;
-                cin >> category_id;
-                cin >> quantity;
-                cin >> product_name;
-                cin >> price;
-                Goodsadd* newgoodsadd = new Goodsadd(loginandpassword, id, product_name, category_id, price, quantity);
+                Goodsadd* newgoodsadd = new Goodsadd();
+                newgoodsadd->productadd();
+                system("pause");
+                system("cls");
                 break;
+            }
+            case 3:
+            {
+                string date;
+                Goodssearch* newgoodssearch = new Goodssearch();
+                cout << "введите дату закупки товара";
+                cin >> date;
+                newgoodssearch->search(date);
+                system("pause");
+                system("cls");
+                break;
+            }
+            case 4:
+            {
+                string newlogin, newstatus;
+                ofstream file(logbase, ios::app);
+                if (!file.is_open())
+                {
+                    cout << "Ошибка открытия файла" << endl;
+                    exit(0);
+                }
+                else
+                {
+                    cin >> ws;
+                    getline(cin, newlogin);
+                    cin >> ws;
+                    getline(cin, newstatus);
+                    cout << "Файл открыт" << endl;
+                    file << newlogin << endl << newstatus << endl;
+                }
+                file.close();
+                system("pause");
+                system("cls");
+                break;
+            }
+            case 5:
+            {
+                int choice;
+                cout << "Введите 1 для просмотра всех результатов, 2 для поиска по пользователю" << endl;
+                cin >> choice;
+                cin.ignore();
+                if (choice == 2)
+                {
+                    string name;
+                    getline(cin, name);
+                    AdminLogCheckSearch* newadminlogchecksearch = new AdminLogCheckSearch();
+                    newadminlogchecksearch->search(name);
+                    system("pause");
+                    system("cls");
+                }
+                else
+                {
+                    AdminLogCheck* newadminlogcheck = new AdminLogCheck();
+                    newadminlogcheck->print();
+                    system("pause");
+                    system("cls");
+                }
+                break;
+            }
+            default:
+            {
+                menu = 0;
+                break;
+            }
+            }
+        }
+        else if (status == 2)
+        {
+
+            cout << "Введите 1 для вывода базы данных в консоль" << endl << "Введите 2 для добавление нового товара в базу данных" << endl << "Введите 3 для поиска товара по дате заказа" << endl;
+            cin >> menu;
+            system("cls");            
+            switch (menu)
+            {
+            case 1:
+            {
+                Goodsread* newgoodsread = new Goodsread();
+                newgoodsread->print();
+                system("pause");
+                system("cls");
+                break;
+            }
+            case 2:
+            {
+                Goodsadd* newgoodsadd = new Goodsadd();
+                newgoodsadd->productadd();
+                system("pause");
+                system("cls");
+                break;
+            }
+            case 3:
+            {
+                string date;
+                Goodssearch* newgoodssearch = new Goodssearch();
+                cout << "Введите дату закупки товара" << endl;
+                cin >> date;
+                newgoodssearch->search(date);
+                system("pause");
+                system("cls");
+                break;
+            }
+            default:
+            {
+                menu = 0;
+                break;
+            }
             }
         }
     }
-    delete newlogin;
-    delete newgoodsread;
-    return 0;
+    system("cls");
 }
