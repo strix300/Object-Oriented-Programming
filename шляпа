@@ -13,7 +13,7 @@ class Goodsread
 protected:
     string product = "Goods.txt", line;
 public:
-    void print()
+    virtual void print()
     {
         ifstream fileproduct(product);
         if (!fileproduct.is_open())
@@ -32,15 +32,16 @@ public:
         fileproduct.seekg(0, ios::beg);
         fileproduct.close();
     }
-    ~Goodsread(){}
+    virtual ~Goodsread() {
+    }
 };
 
-class AdminLogCheck
+class AdminLogCheck : public Goodsread
 {
 protected:
     string logs = "LoginData.txt", line;
 public:
-    void print()
+    void print() override
     {
         ifstream filelogs(logs);
         if (!filelogs.is_open())
@@ -158,6 +159,69 @@ public:
     ~Goodssearch(){}
 };
 
+class GoodsUpdater : public Goodsread {
+public:
+    void updateProduct(int id, int new_category_id, int new_price, int new_quantity, const string& new_product_name, const string& new_date) {
+        ifstream inputFile(product);
+        ofstream tempFile("temp.txt");
+
+        if (!inputFile.is_open() || !tempFile.is_open()) {
+            cout << "Ошибка открытия файла" << endl;
+            exit(0);
+        }
+
+        string line;
+        bool found = false;
+        int lineCount = 0;
+        while (getline(inputFile, line)) {
+            stringstream ss(line);
+            string token;
+            getline(ss, token, '|'); // Извлекаем идентификатор из строки
+
+            if (lineCount < 2) {
+                tempFile << line << endl;  // Записываем первые две строки без изменений
+                lineCount++;
+                continue;
+            }
+
+            if (!token.empty()) {
+                try {
+                    int itemId = stoi(token);
+                    if (itemId == id) {
+                        // Найден товар с указанным идентификатором, меняем данные
+                        tempFile << setw(5) << id << " | "
+                            << setw(35) << new_product_name << " | "
+                            << setw(9) << new_category_id << " | "
+                            << setw(10) << new_price << "р." << " | "
+                            << setw(9) << new_quantity << "шт." << " | "
+                            << setw(5) << new_date << " | " << endl;
+                        found = true;
+                    }
+                    else {
+                        tempFile << line << endl; // Записываем остальные строки без изменений
+                    }
+                }
+                catch (const std::invalid_argument& e) {
+                    cout << "Ошибка преобразования идентификатора в число: " << e.what() << endl;
+                }
+            }
+        }
+
+        inputFile.close();
+        tempFile.close();
+
+        if (!found) {
+            cout << "Товар с указанным идентификатором не найден." << endl;
+            remove("temp.txt"); // Удаляем временный файл
+        }
+        else {
+            remove(product.c_str()); // Удаляем исходный файл
+            rename("temp.txt", product.c_str()); // Переименовываем временный файл в исходное имя
+            cout << "Данные о товаре успешно обновлены." << endl;
+        }
+    }
+};
+
 int main()
 {
     int menu = 1;
@@ -227,21 +291,22 @@ int main()
     while (menu > 0)
     {
         system("cls");
+        Goodsread* goodsPtr = new AdminLogCheck();
         if (status == 1)
         { 
             cout << "Введите 1 для вывода базы данных в консоль" << endl << "Введите 2 для добавление нового товара в базу данных" << endl << "Введите 3 для поиска товара по дате заказа" << endl
-                << "Введите 4 для добавления нового пользователя" << endl << "Введите 5 для просмотра журнала входов" << endl;
+                << "Введите 4 для добавления нового пользователя" << endl << "Введите 5 для просмотра журнала входов" << endl << "Введите 3 для изменения товара по id" << endl;
             cin >> menu;
             system("cls");
             switch (menu)
             {
             case 1:
             {
-                Goodsread* newgoodsread = new Goodsread();
-                newgoodsread->print();
+                goodsPtr = new Goodsread();
+                goodsPtr->print(); // Вызывается метод print() класса Goodsread
+                delete goodsPtr; // Освобождение памяти
                 system("pause");
                 system("cls");
-                delete newgoodsread;
                 break;
             }
             case 2:
@@ -253,7 +318,7 @@ int main()
                 cout << "Введите название товара" << endl;
                 cin >> ws;
                 getline(cin, product_name);
-                cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
+                cout << "Введите id категории товара товара (1 - коплектующие для ПК, 2 - бытовая техника," << endl << "3 - Ноутбуки и перифирия, 4 - ТВ, консоли и аудио)" << endl;
                 cin >> category_id;
                 cout << "Введите цену" << endl;
                 cin >> price;
@@ -321,13 +386,36 @@ int main()
                 }
                 else
                 {
-                    AdminLogCheck* newadminlogcheck = new AdminLogCheck();
-                    newadminlogcheck->print();
+                    goodsPtr = new AdminLogCheck();
+                    goodsPtr->print();
+                    delete goodsPtr; 
                     system("pause");
                     system("cls");
-                    delete newadminlogcheck;
                 }
                 break;
+            }
+            case 6:
+            {
+                int id, category_id, price, quantity;
+                string product_name, date;
+                cout << "Введите id товара: ";
+                cin >> id;
+                cout << "Введите новое название товара: ";
+                cin >> ws;
+                getline(cin, product_name);
+                cout << "Введите новый id категории товара (1 - комплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и периферия, 4 - ТВ, консоли и аудио): ";
+                cin >> category_id;
+                cout << "Введите новую цену: ";
+                cin >> price;
+                cout << "Введите новое количество товара: ";
+                cin >> quantity;
+                cout << "Введите новую дату заказа (в формате дд.мм.гггг): ";
+                cin >> date;
+                GoodsUpdater* newgoodsUpdater= new GoodsUpdater();
+                newgoodsUpdater->updateProduct(id, category_id, price, quantity, product_name, date);
+                delete newgoodsUpdater;
+                system("pause");
+                system("cls");
             }
             default:
             {
@@ -339,18 +427,18 @@ int main()
         else if (status == 2)
         {
 
-            cout << "Введите 1 для вывода базы данных в консоль" << endl << "Введите 2 для добавление нового товара в базу данных" << endl << "Введите 3 для поиска товара по дате заказа" << endl;
+            cout << "Введите 1 для вывода базы данных в консоль" << endl << "Введите 2 для добавление нового товара в базу данных" << endl << "Введите 3 для изменения товара по id" << endl << "Введите 4 для поиска товара по дате заказа" << endl;
             cin >> menu;
             system("cls");            
             switch (menu)
             {
             case 1:
             {
-                Goodsread* newgoodsread = new Goodsread();
-                newgoodsread->print();
+                goodsPtr = new Goodsread();
+                goodsPtr->print();
+                delete goodsPtr; 
                 system("pause");
                 system("cls");
-                delete newgoodsread;
                 break;
             }
             case 2:
@@ -378,6 +466,29 @@ int main()
                 break;
             }
             case 3:
+            {
+                int id, category_id, price, quantity;
+                string product_name, date;
+                cout << "Введите id товара: ";
+                cin >> id;
+                cout << "Введите новое название товара: ";
+                cin >> ws;
+                getline(cin, product_name);
+                cout << "Введите новый id категории товара (1 - комплектующие для ПК, 2 - бытовая техника, 3 - Ноутбуки и периферия, 4 - ТВ, консоли и аудио): ";
+                cin >> category_id;
+                cout << "Введите новую цену: ";
+                cin >> price;
+                cout << "Введите новое количество товара: ";
+                cin >> quantity;
+                cout << "Введите новую дату заказа (в формате дд.мм.гггг): ";
+                cin >> date;
+                GoodsUpdater* newgoodsUpdater = new GoodsUpdater();
+                newgoodsUpdater->updateProduct(id, category_id, price, quantity, product_name, date);
+                delete newgoodsUpdater;
+                system("pause");
+                system("cls");
+            }
+            case 4:
             {
                 string date;
                 Goodssearch* newgoodssearch = new Goodssearch();
